@@ -45,7 +45,7 @@ export ANTHROPIC_API_KEY
 
 # Step 1: Generate specification
 echo "1️⃣ Generating specification..."
-python aidev.py spec "$TASK"
+python3 aidev.py spec "$TASK"
 
 if [ ! -f "aidev_spec.json" ]; then
     echo "❌ Failed to generate specification"
@@ -54,26 +54,26 @@ fi
 
 echo ""
 echo "📄 Generated Spec:"
-cat aidev_spec.json | python -m json.tool | head -20
+cat aidev_spec.json | python3 -m json.tool | head -20
 echo ""
 
 # Step 2: Implement
 echo "2️⃣ Implementing solution..."
-python aidev.py implement
+python3 aidev.py implement
 
 # Step 3: Review
 echo ""
 echo "3️⃣ Reviewing implementation..."
-python aidev.py review
+python3 aidev.py review
 
 # Step 4: Show changes
 echo ""
 echo "4️⃣ Changes made:"
-python aidev.py patch
+python3 aidev.py patch
 
 echo ""
 echo "✅ Workflow complete!"
 echo ""
 echo "To apply changes run:"
-echo "  python aidev.py patch --apply"
+echo "  python3 aidev.py patch --apply"
 echo "  git commit -m \"AI: $TASK\""

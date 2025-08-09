@@ -42,28 +42,42 @@ def cmd_implement(args):
     spec = json.loads(spec_path.read_text())
     system_prompt = IMPLEMENT_SYSTEM_PROMPT + "\n\nSPEC:\n" + json.dumps(spec, indent=2)
 
-    # Initial request to Claude
-    msg = aclient.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=2000,
-        system=system_prompt,
-        tools=TOOLS_SCHEMA,
-        messages=[{"role":"user","content":"Begin implementing. Ask for tools as needed. Stop when done_criteria are met and return git_diff."}],
-    )
-
+    # Build conversation history manually
+    messages = [{"role":"user","content":"Begin implementing. Ask for tools as needed. Stop when done_criteria are met and return git_diff."}]
+    
     # Tool loop
     while True:
-        last = msg.content[-1]
-        if last.type == "tool_use":
-            result = _tool_execute(last.name, last.input)
-            msg = aclient.messages.create(
-                model=ANTHROPIC_MODEL,
-                max_tokens=1500,
-                system=system_prompt,
-                tools=TOOLS_SCHEMA,
-                messages=[*msg.messages, {"role":"tool","tool_use_id": last.id, "content": json.dumps(result)}],
-            )
+        msg = aclient.messages.create(
+            model=ANTHROPIC_MODEL,
+            max_tokens=2000,
+            system=system_prompt,
+            tools=TOOLS_SCHEMA,
+            messages=messages,
+        )
+        
+        # Check if Claude wants to use a tool
+        has_tool_use = any(block.type == "tool_use" for block in msg.content)
+        
+        if has_tool_use:
+            # Add assistant message with tool use
+            messages.append({"role": "assistant", "content": msg.content})
+            
+            # Execute tools and add user message with results
+            tool_results = []
+            for block in msg.content:
+                if block.type == "tool_use":
+                    result = _tool_execute(block.name, block.input)
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result)
+                    })
+            
+            # Add user message with tool results
+            messages.append({"role": "user", "content": tool_results})
             continue
+        
+        # No tool use, show output and exit
         print("[cyan]Claude output:[/cyan]")
         for block in msg.content:
             if block.type == "text":
