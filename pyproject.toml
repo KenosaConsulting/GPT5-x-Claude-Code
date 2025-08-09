@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpt5-claude-code"
+version = "0.2.0"
+description = "Terminal orchestrator combining GPT-5 planning with Claude Code implementation"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Kenosa Consulting", email = "info@kenosa.consulting"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "openai>=1.40.0",
+    "anthropic>=0.34.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.7.0",
+    "rich>=13.7.1",
+    "click>=8.1.0",
+    "PyYAML>=6.0.0",
+    "structlog>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=24.0.0",
+    "ruff>=0.6.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/KenosaConsulting/GPT5-x-Claude-Code"
+Repository = "https://github.com/KenosaConsulting/GPT5-x-Claude-Code"
+Issues = "https://github.com/KenosaConsulting/GPT5-x-Claude-Code/issues"
+
+[project.scripts]
+aidev = "aidev.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "N", "UP", "B", "A", "S", "T20", "SIM", "ARG", "PTH"]
+ignore = ["S101", "T201"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=src --cov-report=term-missing --cov-report=html"
